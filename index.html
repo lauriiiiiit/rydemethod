@@ -1435,22 +1435,29 @@ async function _onDisc(){
   clearInterval(_Si);
   _Bw = _Bn = null;
 
-  let reason = "Unknown error";
+  let reason = "Unknown disconnect";
 
-  try{
+  try {
 
-    if(!_Bd.gatt.connected){
-      reason = "Bluetooth connection lost";
+    // device powered off
+    if (!_Bd.gatt.connected) {
+      reason = "Bluetooth signal lost or scooter powered off";
     }
 
+    // optional battery checks
+    if (_Jw && batteryLevel <= 5) {
+      reason = "Battery critically low";
+    }
+
+    // reconnect test
     try{
       await _Bd.gatt.connect();
-      reason = "Firmware or controller error";
+      reason = "Firmware/controller communication error";
     }catch{
-      reason = "Scooter powered off or out of range";
+      reason = "Scooter not responding";
     }
 
-  }catch(e){
+  } catch(e){
     reason = e.message;
   }
 
@@ -1459,8 +1466,7 @@ async function _onDisc(){
     show("sec-connect");
     toast(reason,"err");
   }
-}
-}
+}}
 
 /* -- Boot: preload server key ----------------------------------------------- */
 (async function _boot(){
