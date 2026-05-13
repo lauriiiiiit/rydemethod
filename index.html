@@ -1430,9 +1430,36 @@ function doDisconnect(){
   if(_Jw){setBattery(null);show("sec-connect");}
 }
 
-function _onDisc(){
-  clearInterval(_Si);_Bw=_Bn=null;
-  if(_Jw){setBattery(null);show("sec-connect");toast("Scooter disconnected","err");}
+async function _onDisc(){
+
+  clearInterval(_Si);
+  _Bw = _Bn = null;
+
+  let reason = "Unknown error";
+
+  try{
+
+    if(!_Bd.gatt.connected){
+      reason = "Bluetooth connection lost";
+    }
+
+    try{
+      await _Bd.gatt.connect();
+      reason = "Firmware or controller error";
+    }catch{
+      reason = "Scooter powered off or out of range";
+    }
+
+  }catch(e){
+    reason = e.message;
+  }
+
+  if(_Jw){
+    setBattery(null);
+    show("sec-connect");
+    toast(reason,"err");
+  }
+}
 }
 
 /* -- Boot: preload server key ----------------------------------------------- */
