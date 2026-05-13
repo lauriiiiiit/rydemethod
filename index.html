@@ -1430,21 +1430,36 @@ function doDisconnect(){
   if(_Jw){setBattery(null);show("sec-connect");}
 }
 
-async function _onDisc(){
+function _onDisc(event){
 
   clearInterval(_Si);
   _Bw = _Bn = null;
 
   let reason = "Scooter disconnected";
 
-  if(!_Bd?.gatt?.connected){
-    reason = "Bluetooth connection lost or scooter powered off";
+  // Best-effort reason guessing (Web Bluetooth is limited here)
+  if(!_Bd){
+    reason = "Device reference lost";
+  }
+  else if(!_Bd.gatt){
+    reason = "Bluetooth GATT not available";
+  }
+  else if(!_Bd.gatt.connected){
+    // Most common case
+    reason = "Connection lost (out of range / powered off / interference)";
+  }
+
+  // Optional: try to read a more useful state hint
+  if(event && event.target && event.target.gatt && !event.target.gatt.connected){
+    reason = "Bluetooth link dropped unexpectedly";
   }
 
   if(_Jw){
     setBattery(null);
     show("sec-connect");
-    toast(reason,"err");
+    toast(reason, "err");
+  }
+}
   }
 }
   }
