@@ -1424,10 +1424,20 @@ async function doCommand(action){
 }
 
 function doDisconnect(){
+  _manualDisconnect = true;
+
   clearInterval(_Si);
-  if(_Bd&&_Bd.gatt.connected)_Bd.gatt.disconnect();
-  _Bd=_Bw=_Bn=null;
-  if(_Jw){setBattery(null);show("sec-connect");}
+  if(_Bd && _Bd.gatt.connected) _Bd.gatt.disconnect();
+
+  _Bd = _Bw = _Bn = null;
+
+  if(_Jw){
+    setBattery(null);
+    show("sec-connect");
+  }
+
+  _manualDisconnect = false;
+}
 }
 
 function _onDisc(event){
