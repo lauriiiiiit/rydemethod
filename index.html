@@ -1435,23 +1435,18 @@ async function _onDisc(){
   clearInterval(_Si);
   _Bw = _Bn = null;
 
-  let reason = "Unknown error";
+  let reason = "Scooter disconnected";
 
-  try{
+  if(!_Bd?.gatt?.connected){
+    reason = "Bluetooth connection lost or scooter powered off";
+  }
 
-    if(!_Bd.gatt.connected){
-      reason = "Bluetooth connection lost";
-    }
-
-    try{
-      await _Bd.gatt.connect();
-      reason = "Firmware or controller error";
-    }catch{
-      reason = "Scooter powered off or out of range";
-    }
-
-  }catch(e){
-    reason = e.message;
+  if(_Jw){
+    setBattery(null);
+    show("sec-connect");
+    toast(reason,"err");
+  }
+}
   }
 
   if(_Jw){
